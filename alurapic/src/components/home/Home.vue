@@ -3,12 +3,18 @@
     <h1 class="centralizado">Alurapic</h1>
 
     <input type="search" class="filtro" @input="filtro = $event.target.value" placeholder="Filtre pelo título">
-    
+
     <ul class="lista-fotos">
-      <li class="lista-fotos-item" v-for="foto of fotosComFiltro">
+      <li class="lista-fotos-item" v-for="foto in fotosComFiltro">
 
         <meu-painel :titulo="foto.titulo">
           <imagem-responsiva :url="foto.url" :titulo="foto.titulo"/>
+          <meu-botao
+            rotulo="remover"
+            tipo="button"
+            :confirmacao="true"
+            @botaoAtivado="remove(foto)"
+            estilo="perigo"/>
         </meu-painel>
 
       </li>
@@ -19,11 +25,19 @@
 <script>
 import Painel from '../shared/painel/Painel.vue';
 import ImagemResponsiva from '../shared/imagem-responsiva/ImagemResponsiva.vue';
+import Botao from '../shared/botao/Botao.vue';
 
 export default {
   components: {
     'meu-painel': Painel,
-    'imagem-responsiva': ImagemResponsiva
+    'imagem-responsiva': ImagemResponsiva,
+    'meu-botao': Botao
+  },
+
+  methods: {
+    remove(foto) {
+      alert(foto.titulo);
+    }
   },
 
   data() {
