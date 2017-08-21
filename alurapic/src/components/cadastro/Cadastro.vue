@@ -1,17 +1,22 @@
 <template>
     <div>
-      <h1 class="centralizado">Cadastro</h1>
+      <h1 v-if="foto._id" class="centralizado">Alteração</h1>
+      <h1 v-else class="centralizado">Inclusão</h1>
       <h2 class="centralizado">{{ foto.titulo }}</h2>
 
       <form @submit.prevent="grava()">
         <div class="controle">
           <label for="titulo">TÍTULO</label>
-          <input id="titulo" v-model.lazy="foto.titulo" autocomplete="off">
+          <input name="titulo" v-validate data-vv-rules="required|min:3|max:30" data-vv-as="título"
+            id="titulo" v-model="foto.titulo" autocomplete="off">
+          <span class="erro" v-show="errors.has('titulo')">{{ errors.first('titulo') }}</span>
         </div>
 
         <div class="controle">
           <label for="url">URL</label>
-          <input id="url" v-model.lazy="foto.url" autocomplete="off">
+          <input name="url" id="url" v-model="foto.url" autocomplete="off"
+            v-validate data-vv-rules="required">
+          <span class="erro" v-show="errors.has('url')">{{ errors.first('url')}}</span>
           <imagem-responsiva v-show="foto.url" :url="foto.url" :titulo="foto.titulo"/>
         </div>
 
@@ -44,20 +49,37 @@ export default {
   data() {
     return {
       foto: new Foto(),
-      resource: {}
+      resource: {},
+      id: this.$route.params.id
     }
   },
 
   methods: {
     grava() {
-      this.service
-        .cadastra(this.foto)
-        .then(() => this.foto = new Foto(), err => console.log(err));
+      this.$validator
+        .validateAll()
+        .then(success => {
+          if (success) {
+            this.service
+            .cadastra(this.foto)
+            .then(() => {
+              if (this.id) this.$router.push({ name: 'home' });
+              this.foto = new Foto()
+            },
+            err => console.log(err));
+          }
+        })
     }
   },
 
   created() {
     this.service = new FotoService(this.$resource);
+
+    if (this.id) {
+      this.service
+        .busca(this.id)
+        .then(foto => this.foto = foto);
+    }
   }
 }
 </script>
@@ -81,5 +103,9 @@ export default {
     width: 100%;
     font-size: inherit;
     border-radius: 5px;
+  }
+
+  .erro {
+    color: red;
   }
 </style>
