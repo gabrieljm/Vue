@@ -29,6 +29,7 @@ import Painel from '../shared/painel/Painel.vue';
 import ImagemResponsiva from '../shared/imagem-responsiva/ImagemResponsiva.vue';
 import Botao from '../shared/botao/Botao.vue';
 import transform from '../../directives/Transform';
+import FotoService from '../../domain/foto/FotoService';
 
 export default {
   components: {
@@ -62,8 +63,8 @@ export default {
 
   methods: {
     remove(foto) {
-      this.resource
-        .delete({id: foto._id})
+      this.service
+        .apaga(foto._id)
         .then(
           () => {
             let indice = this.fotos.indexOf(foto);
@@ -75,29 +76,14 @@ export default {
             console.log(err);
           }
         )
-
-      // this.$http
-      //   .delete(`v1/fotos/${foto._id}`)
-      //   .then(
-      //     () => {
-      //       let indice = this.fotos.indexOf(foto);
-      //       this.fotos.splice(indice, 1);
-      //       this.mensagem = 'Foto removida com sucesso'
-      //     },
-      //     err => {
-      //       this.mensagem = 'Não foi possível remover a foto';
-      //       console.log(err);
-      //     }
-      //   )
     }
   },
 
   created() {
-    this.resource = this.$resource('v1/fotos{/id}');
+    this.service = new FotoService(this.$resource);
 
-    this.resource
-      .query()
-      .then(res => res.json())
+    this.service
+      .lista()
       .then(fotos => this.fotos = fotos, err => console.log(err));
 
     // this.$http
